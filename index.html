@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>换技 SkillSwap · 用你会的，换你想学的</title>
+<meta name="description" content="技能互换平台：发布我能教的和我想学的，双向匹配、三角互换、时间币约课。">
+<style>
+:root{
+  --bg:#F5F2EA; --surface:#FBF9F4; --raised:#FFFEFB; --ink:#1E2A25; --ink2:rgba(30,42,37,.68); --ink3:rgba(30,42,37,.45);
+  --line:rgba(30,42,37,.11); --line2:rgba(30,42,37,.06); --accent:#D9573A; --accent-soft:rgba(217,87,58,.1);
+  --green:#2F6B55; --green-soft:rgba(47,107,85,.1); --gold:#A9802C; --gold-soft:rgba(169,128,44,.12);
+  --r:14px; --shadow:0 1px 0 rgba(255,255,255,.8) inset,0 1px 2px rgba(30,42,37,.04),0 8px 24px -12px rgba(30,42,37,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,textarea,select{font:inherit;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+/* nav */
+.nav{position:sticky;top:0;z-index:20;background:rgba(245,242,234,.86);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line2)}
+.nav .wrap{display:flex;align-items:center;gap:28px;height:60px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:650;font-size:17px;letter-spacing:.02em}
+.logo i{width:28px;height:28px;border-radius:9px;background:var(--ink);position:relative;display:block}
+.logo i:before,.logo i:after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;top:9.5px}
+.logo i:before{left:5px;background:var(--accent)}.logo i:after{right:5px;background:#F5F2EA}
+.logo small{font-weight:400;color:var(--ink3);font-size:12px;letter-spacing:.06em}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tab{padding:7px 14px;border-radius:999px;color:var(--ink2);font-size:14px;position:relative;transition:background .15s,color .15s}
+.tab:hover{background:var(--line2)}
+.tab.on{background:var(--ink);color:#F5F2EA}
+.dot{display:inline-block;min-width:16px;height:16px;line-height:16px;border-radius:8px;background:var(--accent);color:#fff;font-size:10.5px;text-align:center;padding:0 4px;margin-left:5px;vertical-align:1px}
+.coin{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.coin:before{content:"";width:10px;height:10px;border-radius:50%;border:2px solid var(--gold)}
+/* bottom bar mobile */
+.bbar{display:none}
+@media(max-width:760px){
+  .tabs{display:none}.nav .wrap{gap:12px}.coin{margin-left:auto}
+  .bbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(251,249,244,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .bbar .tab{flex:1;text-align:center;padding:9px 0;font-size:13px;border-radius:12px}
+  .logo small{display:none}
+}
+/* hero */
+.hero{padding:44px 0 30px;display:grid;grid-template-columns:1.15fr 1fr;gap:40px;align-items:center}
+.hero h1{font-size:40px;line-height:1.18;letter-spacing:-.01em;font-weight:680}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{color:var(--ink2);margin:14px 0 22px;max-width:30em}
+.hero-cta{display:flex;gap:10px;flex-wrap:wrap}
+.stats{display:flex;gap:26px;margin-top:28px;color:var(--ink3);font-size:12.5px}
+.stats b{display:block;color:var(--ink);font-size:20px;font-weight:650;font-variant-numeric:tabular-nums}
+.mycard{background:var(--raised);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+.mycard h3{font-size:13px;font-weight:600;color:var(--ink3);letter-spacing:.08em;margin-bottom:8px}
+.mycard .row{margin-bottom:16px}
+.swapline{display:flex;align-items:center;gap:10px;color:var(--ink3);font-size:12px;margin:2px 0 14px}
+.swapline:before,.swapline:after{content:"";flex:1;height:1px;background:var(--line)}
+@media(max-width:760px){.hero{grid-template-columns:1fr;gap:24px;padding:28px 0 20px}.hero h1{font-size:30px}}
+/* buttons chips */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:550;transition:transform .12s ease-out,background .15s,opacity .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--ink);color:#F5F2EA}.btn.pri:hover{background:#2b3a33}
+.btn.acc{background:var(--accent);color:#fff}
+.btn.ghost{border:1px solid var(--line);background:var(--raised)}.btn.ghost:hover{border-color:var(--ink3)}
+.btn.sm{padding:6px 13px;font-size:13px}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;font-size:13px;border:1px solid var(--line);background:var(--surface);margin:0 6px 6px 0;white-space:nowrap}
+.chip.teach{background:var(--green-soft);border-color:transparent;color:var(--green)}
+.chip.learn{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.chip.hit{box-shadow:0 0 0 1.5px currentColor inset;font-weight:600}
+.chip .x{opacity:.5;font-size:15px;line-height:1;margin-right:-3px}.chip .x:hover{opacity:1}
+.chip.add{border-style:dashed;color:var(--ink2);cursor:pointer}
+.chip.pick{cursor:pointer}.chip.pick.on{background:var(--ink);color:#F5F2EA;border-color:var(--ink)}
+/* sections */
+.sec{margin:34px 0 14px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sec h2{font-size:20px;font-weight:650}
+.sec span{color:var(--ink3);font-size:13px}
+.sec .right{margin-left:auto}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.search{display:flex;gap:10px;margin-bottom:12px}
+.search input{flex:1;min-width:0;padding:11px 16px;border-radius:12px;border:1px solid var(--line);background:var(--raised);outline:none}
+.search input:focus{border-color:var(--ink3)}
+.seg{display:flex;background:var(--line2);border-radius:12px;padding:3px}
+.seg button{padding:7px 14px;border-radius:9px;font-size:13px;color:var(--ink2)}
+.seg button.on{background:var(--raised);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--raised);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:transform .18s ease-out,border-color .18s;display:flex;flex-direction:column;gap:10px}
+.card:hover{transform:translateY(-2px);border-color:rgba(30,42,37,.22)}
+.card .skill{font-size:17px;font-weight:650}
+.card .desc{color:var(--ink2);font-size:13px;line-height:1.55;flex:1}
+.meta{color:var(--ink3);font-size:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.who{display:flex;align-items:center;gap:9px}
+.who b{font-size:14px;font-weight:600}
+.av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:600;font-size:14px;flex:none}
+.av.lg{width:56px;height:56px;font-size:22px}
+.badge{font-size:11px;padding:1px 7px;border-radius:6px;background:var(--green-soft);color:var(--green);font-weight:600}
+.badge.acc{background:var(--accent-soft);color:var(--accent)}.badge.gold{background:var(--gold-soft);color:var(--gold)}
+.tag2{font-size:11.5px;color:var(--ink3);border:1px solid var(--line);border-radius:6px;padding:0 6px}
+/* match cards */
+.mcard{background:var(--raised);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:12px}
+.mcard .score{font-size:26px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;text-align:right;line-height:1}
+.mcard .score small{display:block;font-size:11px;color:var(--ink3);font-weight:400;margin-top:4px}
+.ex{display:flex;flex-direction:column;gap:5px;margin:10px 0 4px;font-size:13.5px}
+.ex div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ex i{font-style:normal;color:var(--ink3);font-size:12px;width:52px;flex:none}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+@media(max-width:600px){.mcard{grid-template-columns:1fr}.mcard .score{text-align:left;order:-1}.mcard .score small{display:inline;margin-left:6px}}
+.chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0 4px}
+.node{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:600}
+.node .av{width:26px;height:26px;font-size:12px}
+.arrow{font-size:12px;color:var(--ink2);display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.arrow:after{content:"";width:34px;height:1px;background:var(--ink3);margin-top:3px}
+/* swaps */
+.prog{height:6px;border-radius:3px;background:var(--line2);overflow:hidden;margin:6px 0 2px}
+.prog b{display:block;height:100%;border-radius:3px;background:var(--green);transition:width .35s ease-out}
+.prog.l b{background:var(--accent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px}
+@media(max-width:600px){.two{grid-template-columns:1fr}}
+.status{font-size:12px;padding:2px 9px;border-radius:999px;font-weight:600}
+.status.pending{background:var(--gold-soft);color:var(--gold)}.status.active{background:var(--green-soft);color:var(--green)}.status.done{background:var(--line2);color:var(--ink2)}
+.empty{border:1px dashed var(--line);border-radius:18px;padding:40px 24px;text-align:center;color:var(--ink2)}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
+/* chat */
+.chat{display:grid;grid-template-columns:280px 1fr;background:var(--raised);border:1px solid var(--line);border-radius:18px;overflow:hidden;height:min(620px,calc(100vh - 210px));box-shadow:var(--shadow);margin-top:20px}
+.threads{border-right:1px solid var(--line);overflow:auto}
+.th{display:flex;gap:10px;padding:13px 14px;cursor:pointer;border-bottom:1px solid var(--line2);align-items:center}
+.th.on,.th:hover{background:var(--surface)}
+.th p{font-size:12.5px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.pane{display:flex;flex-direction:column;min-width:0}
+.pane header{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.msgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.msg{max-width:74%;padding:9px 13px;border-radius:16px;font-size:14px;background:var(--raised);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:5px}
+.msg.me{align-self:flex-end;background:var(--ink);color:#F5F2EA;border-color:var(--ink);border-radius:16px;border-bottom-right-radius:5px}
+.msg.sys{align-self:center;background:none;border:0;color:var(--ink3);font-size:12px}
+.send{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.send input{flex:1;min-width:0;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);outline:none}
+.back{display:none}
+@media(max-width:760px){.chat{grid-template-columns:1fr;height:calc(100vh - 200px)}.chat.open .threads{display:none}.chat:not(.open) .pane{display:none}.back{display:inline-flex}}
+/* modal */
+.mask{position:fixed;inset:0;z-index:50;background:rgba(30,42,37,.32);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px;animation:fade .18s ease-out}
+.modal{background:var(--bg);border-radius:22px;width:min(560px,100%);max-height:88vh;overflow:auto;padding:24px;box-shadow:0 30px 80px -20px rgba(30,42,37,.4);animation:up .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes fade{from{opacity:0}}@keyframes up{from{opacity:0;transform:translateY(14px) scale(.985)}}
+.modal h3{font-size:19px;font-weight:650}
+.modal .close{float:right;width:30px;height:30px;border-radius:50%;background:var(--line2);font-size:16px;line-height:1}
+.fld{margin-top:16px}
+.fld label{display:block;font-size:12.5px;color:var(--ink3);margin-bottom:6px;letter-spacing:.04em}
+.fld input[type=text],.fld textarea,.fld select{width:100%;padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:var(--raised);outline:none;resize:vertical}
+.fld input:focus,.fld textarea:focus{border-color:var(--ink3)}
+.note{background:var(--gold-soft);color:#7a5c1e;border-radius:12px;padding:10px 13px;font-size:13px;margin-top:14px}
+.review{border-top:1px solid var(--line2);padding:10px 0;font-size:13.5px}
+.review small{color:var(--ink3)}
+.stars{color:var(--gold);letter-spacing:2px}
+.starpick button{font-size:26px;color:var(--line);padding:0 2px}.starpick button.on{color:var(--gold)}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#F5F2EA;padding:10px 18px;border-radius:999px;font-size:14px;z-index:99;animation:up .25s ease-out;box-shadow:0 10px 30px -10px rgba(0,0,0,.4);max-width:90vw}
+/* about */
+.doc{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.doc .card{cursor:default}.doc .card:hover{transform:none;border-color:var(--line)}
+.doc h4{font-size:15px;font-weight:650}
+.doc .pain{color:var(--accent);font-size:12.5px;font-weight:600}
+.doc p,.doc li{color:var(--ink2);font-size:13.5px}
+.doc ul{padding-left:18px}
+.flow{display:flex;gap:0;flex-wrap:wrap;margin:6px 0 4px}
+.flow div{flex:1;min-width:130px;padding:14px;border:1px solid var(--line);background:var(--raised);margin:-0.5px;font-size:13px;color:var(--ink2)}
+.flow div:first-child{border-radius:14px 0 0 14px}.flow div:last-child{border-radius:0 14px 14px 0}
+.flow b{display:block;color:var(--ink);font-size:14px}.flow em{font-style:normal;color:var(--accent);font-size:11.5px;font-weight:600;letter-spacing:.06em}
+.ledger{font-size:13.5px}.ledger div{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line2)}
+.foot{margin:56px 0 10px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.foot button{color:var(--ink2);text-decoration:underline;text-underline-offset:3px;font-size:12.5px}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="wrap">
+  <div class="logo"><i></i>换技 <small>SKILLSWAP</small></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="coin" id="coin" title="时间币：教 1 小时赚 1 枚，学 1 小时花 1 枚"></div>
+</div></nav>
+<main class="wrap" id="app"></main>
+<div class="bbar" id="bbar"></div>
+<div id="modal"></div>
+<script>
+const CATS={音乐:["吉他","钢琴","尤克里里","声乐"],影像:["摄影","视频剪辑","修图"],编程:["Python","前端开发","数据分析","Excel"],语言:["英语口语","日语","韩语","粤语"],设计:["UI设计","插画","手绘"],运动:["瑜伽","游泳","滑板","网球"],生活:["烘焙","咖啡拉花","化妆","理财入门"],职场:["PPT","写作","面试辅导"]};
+const catOf=s=>Object.keys(CATS).find(c=>CATS[c].includes(s))||"其他";
+const TIMES=["工作日晚","周末白天","周末晚"];
+const U=[
+{id:1,name:"林晚",city:"上海",mode:"均可",times:["工作日晚","周末白天"],rating:4.9,swaps:12,ok:1,bio:"弹了五年指弹，业余在 livehouse 驻唱。最近转行做运营，被报表折磨，想系统学点 Python。",teach:[{s:"吉他",lv:"5 年 · 指弹/弹唱",d:"从持琴到第一首完整弹唱，四节课带你过爬格子和换和弦两道坎。"},{s:"尤克里里",lv:"3 年",d:"零基础友好，一节课就能弹一首歌。"}],learn:["Python","数据分析"]},
+{id:2,name:"陈柯",city:"上海",mode:"线下",times:["周末白天"],rating:4.8,swaps:9,ok:1,bio:"自由摄影师，拍人像和街头。明年想去海外驻地，口语是硬伤。",teach:[{s:"摄影",lv:"7 年 · 人像/扫街",d:"不讲参数表，带你出门拍。学会看光、构图，手机也能出片。"},{s:"修图",lv:"Lightroom 调色",d:"一套自己的预设思路，告别千篇一律滤镜。"}],learn:["英语口语"]},
+{id:3,name:"周予",city:"北京",mode:"线上",times:["工作日晚","周末晚"],rating:4.7,swaps:6,ok:1,bio:"乐队吉他手，白天写代码。准备去日本看 live，想学日语。",teach:[{s:"吉他",lv:"8 年 · 电吉他/乐理",d:"想弹 solo 和想搞懂乐理的来，线上视频课。"}],learn:["日语"]},
+{id:4,name:"Mia",city:"线上",mode:"线上",times:["工作日晚","周末白天","周末晚"],rating:4.9,swaps:15,ok:1,bio:"在东京工作的翻译，N1。想用 Python 自动处理术语表。",teach:[{s:"日语",lv:"N1 · 在日 6 年",d:"五十音到日常会话，用动画和日剧当教材。"}],learn:["Python"]},
+{id:5,name:"阿澈",city:"杭州",mode:"均可",times:["周末白天","周末晚"],rating:4.6,swaps:5,ok:0,bio:"B 站 up 主，做旅行 vlog。最近迷上了烘焙视频但自己只会翻车。",teach:[{s:"视频剪辑",lv:"剪映/PR · 4 年",d:"从素材整理到节奏感，做出第一支完整 vlog。"},{s:"摄影",lv:"旅行风光",d:"旅行怎么拍不游客照。"}],learn:["烘焙"]},
+{id:6,name:"苏禾",city:"杭州",mode:"均可",times:["周末白天"],rating:4.8,swaps:8,ok:1,bio:"私房烘焙店主，准备接外国客人的订单，想练口语。",teach:[{s:"烘焙",lv:"私房 5 年",d:"戚风、曲奇、巴斯克，家用烤箱就能复刻。"},{s:"咖啡拉花",lv:"SCA 初级",d:"从打奶泡到压纹心形。"}],learn:["英语口语"]},
+{id:7,name:"Leo",city:"深圳",mode:"线上",times:["工作日晚"],rating:4.5,swaps:3,ok:0,bio:"前端工程师，想在年会上弹一首歌。",teach:[{s:"前端开发",lv:"6 年 · React",d:"带你从 0 做一个能上线的个人网站。"}],learn:["吉他"]},
+{id:8,name:"唐糖",city:"成都",mode:"均可",times:["周末白天","周末晚"],rating:4.8,swaps:11,ok:1,bio:"瑜伽老师，想把课程拍得好看一点、汇报做得体面一点。",teach:[{s:"瑜伽",lv:"RYT200",d:"肩颈放松和体态调整，适合久坐人群。"},{s:"化妆",lv:"日常通勤妆",d:"十分钟出门妆。"}],learn:["摄影","PPT"]},
+{id:9,name:"老白",city:"上海",mode:"线下",times:["工作日晚"],rating:4.7,swaps:7,ok:1,bio:"银行从业十年，旱鸭子一只。",teach:[{s:"理财入门",lv:"CFP",d:"搞懂基金、保险和自己的现金流，不荐股。"},{s:"Excel",lv:"函数/透视表",d:"把每周三小时的重复表格变成三分钟。"}],learn:["游泳"]},
+{id:10,name:"Kiki",city:"上海",mode:"均可",times:["工作日晚","周末白天"],rating:4.9,swaps:10,ok:1,bio:"UI 设计师，想学 Python 做设计自动化，也在准备外企面试。",teach:[{s:"UI设计",lv:"5 年 · 大厂",d:"Figma 从入门到做出作品集第一页。"},{s:"插画",lv:"Procreate",d:"画一套自己的头像。"}],learn:["Python","英语口语"]},
+{id:11,name:"何川",city:"上海",mode:"线下",times:["周末白天"],rating:4.6,swaps:4,ok:0,bio:"前游泳队队员，想把训练日常剪成视频。",teach:[{s:"游泳",lv:"国家二级",d:"四节课学会蛙泳换气。"},{s:"网球",lv:"3.5",d:"正反手入门。"}],learn:["视频剪辑"]},
+{id:12,name:"Nana",city:"线上",mode:"线上",times:["周末晚"],rating:4.7,swaps:6,ok:1,bio:"韩语专业，业余 cover 歌手。",teach:[{s:"韩语",lv:"TOPIK 6",d:"追星够用的韩语，四十音起步。"},{s:"声乐",lv:"流行唱法",d:"气息和音准，KTV 提升明显。"}],learn:["UI设计"]},
+{id:13,name:"大鱼",city:"北京",mode:"线上",times:["工作日晚","周末晚"],rating:4.8,swaps:14,ok:1,bio:"互联网 HR，面过两千人。中年叛逆想学滑板。",teach:[{s:"面试辅导",lv:"8 年 HRBP",d:"模拟面试 + 简历逐行改。"},{s:"写作",lv:"公众号 10w+",d:"把话说清楚的结构化写作。"}],learn:["滑板"]},
+{id:14,name:"乔一",city:"广州",mode:"均可",times:["周末白天"],rating:4.5,swaps:2,ok:0,bio:"滑板店店员，画速写。",teach:[{s:"滑板",lv:"6 年",d:"从站板到 ollie。"},{s:"手绘",lv:"速写",d:"随身本子画生活。"}],learn:["粤语","摄影"]}
+];
+const REVIEWS=["很有耐心，会根据我的进度调整内容，四节课真的弹下来一首歌。","准时、认真，课后还会发练习清单。","试课 15 分钟就知道合拍，强烈推荐先试课。","互相教的感觉很好，谁也不欠谁，反而更能坚持。","讲得很落地，没有废话。"];
+const uById=id=>U.find(u=>u.id===id);
+const COLORS=["#2F6B55","#D9573A","#A9802C","#4A6A8A","#8A5A7A","#5B7A3A","#B0683A"];
+const av=(u,c="")=>`<span class="av ${c}" style="background:${COLORS[(u.id||0)%COLORS.length]}">${esc((u.name||"我")[0])}</span>`;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- state ---------- */
+const KEY="skillswap_v1";
+const fresh=()=>({me:{id:0,name:"我",city:"上海",mode:"均可",times:["工作日晚","周末白天"],bio:"",teach:["Python","英语口语"],learn:["吉他","摄影"]},coins:3,ledger:[{t:"新人礼",n:3}],swaps:[],msgs:{},unread:{},onboarded:false});
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let route=location.hash.slice(1)||"discover",ui={cat:"全部",q:"",side:"teach",thread:null};
+
+/* ---------- matching ---------- */
+function relate(u){const get=u.teach.map(t=>t.s).filter(s=>S.me.learn.includes(s)),give=u.learn.filter(s=>S.me.teach.includes(s));return{get,give}}
+function score(u,get,give){let sc=0;if(get.length&&give.length)sc=72+6*(get.length+give.length-2);else sc=40+5*(get.length+give.length);
+  if(u.city===S.me.city||u.mode!=="线下"||u.city==="线上")sc+=6;sc+=3*u.times.filter(t=>S.me.times.includes(t)).length;sc+=Math.round((u.rating-4.4)*10);return Math.min(99,sc)}
+function reach(u){return u.mode!=="线下"||u.city===S.me.city}
+function matchAll(){const mutual=[],teachMe=[],wantMe=[],chains=[];
+  U.forEach(u=>{const{get,give}=relate(u);if(!get.length&&!give.length)return;const m={u,get,give,sc:score(u,get,give),reach:reach(u)};
+    if(get.length&&give.length)mutual.push(m);else if(get.length)teachMe.push(m);else wantMe.push(m)});
+  // 三角互换：我教 B，B 教 C，C 教我
+  wantMe.forEach(b=>teachMe.forEach(c=>{if(b.u.id===c.u.id)return;const mid=b.u.teach.map(t=>t.s).filter(s=>c.u.learn.includes(s));
+    if(mid.length)chains.push({b:b.u,c:c.u,give:b.give[0],mid:mid[0],get:c.get[0],sc:Math.min(95,Math.round((b.sc+c.sc)/2)+22)})}));
+  const by=(a,b)=>b.sc-a.sc;return{mutual:mutual.sort(by),teachMe:teachMe.sort(by),wantMe:wantMe.sort(by),chains:chains.sort(by)}}
+
+/* ---------- render ---------- */
+const TABS=[["discover","发现"],["match","匹配"],["swaps","我的交换"],["messages","消息"],["me","我的"],["about","设计思路"]];
+function render(){
+  const unread=Object.values(S.unread).reduce((a,b)=>a+b,0),pend=S.swaps.filter(s=>s.status==="active").length;
+  const tabs=TABS.map(([k,n])=>`<button class="tab ${route===k?"on":""}" data-go="${k}">${n}${k==="messages"&&unread?`<span class="dot">${unread}</span>`:""}</button>`).join("");
+  $("#tabs").innerHTML=tabs;$("#bbar").innerHTML=TABS.slice(0,5).map(([k,n])=>`<button class="tab ${route===k?"on":""}" data-go="${k}">${n==="我的交换"?"交换":n}${k==="messages"&&unread?`<span class="dot">${unread}</span>`:""}</button>`).join("");
+  $("#coin").textContent=S.coins+" 时间币";
+  $("#app").innerHTML=(V[route]||V.discover)()+foot();
+  if(route==="messages"){const m=$(".msgs");if(m)m.scrollTop=m.scrollHeight}
+}
+const $=s=>document.querySelector(s);
+const foot=()=>`<div class="foot"><span>换技 SkillSwap · 产品雏形 Demo</span><span>示例用户为模拟数据，你的操作保存在本地浏览器</span><button data-act="reset">重置演示数据</button><button data-go="about">查看设计思路</button></div>`;
+const chips=(arr,cls,hit=[])=>arr.map(s=>`<span class="chip ${cls} ${hit.includes(s)?"hit":""}">${esc(s)}</span>`).join("");
+const myChips=(k)=>S.me[k].map(s=>`<span class="chip ${k}">${esc(s)}<button class="x" data-act="rm" data-k="${k}" data-s="${esc(s)}">×</button></span>`).join("")+`<span class="chip add" data-act="addskill" data-k="${k}">+ 添加</span>`;
+const userMeta=u=>`<span class="meta"><span class="stars">★</span>${u.rating} · 已换 ${u.swaps} 次 · ${u.city}${u.mode==="线上"&&u.city!=="线上"?" · 线上":""}${u.ok?' <span class="badge">已实名</span>':""}</span>`;
+
+const V={
+discover(){const m=matchAll();
+  let items=[];
+  if(ui.side==="teach")U.forEach(u=>u.teach.forEach(t=>items.push({u,s:t.s,lv:t.lv,d:t.d})));
+  else U.forEach(u=>u.learn.forEach(s=>items.push({u,s,lv:"想学",d:`${u.name} 想学${s}，可以用「${u.teach.map(t=>t.s).join(" / ")}」和你交换。`})));
+  if(ui.cat!=="全部")items=items.filter(i=>catOf(i.s)===ui.cat);
+  if(ui.q){const q=ui.q.toLowerCase();items=items.filter(i=>(i.s+i.u.name+i.d+i.u.city).toLowerCase().includes(q))}
+  const mine=ui.side==="teach"?S.me.learn:S.me.teach;items.sort((a,b)=>mine.includes(b.s)-mine.includes(a.s));
+  return `<section class="hero"><div>
+    <h1>用你会的，<br>换你<em>想学的</em>。</h1>
+    <p>不花钱报班，也不一个人硬啃。发布你能教的和想学的，我们帮你找到那个刚好互补的人——一人一节，互为师生。</p>
+    <div class="hero-cta"><button class="btn pri" data-go="match">查看我的匹配 · ${m.mutual.length+m.chains.length} 个</button><button class="btn ghost" data-act="addskill" data-k="teach">发布技能</button></div>
+    <div class="stats"><div><b>2,480</b>位互换者</div><div><b>6,912</b>节已完成课程</div><div><b>86%</b>四节课完课率</div></div>
+  </div>
+  <div class="mycard"><div class="row"><h3>我能教的</h3>${myChips("teach")}</div><div class="swapline">互换</div><div class="row" style="margin-bottom:4px"><h3>我想学的</h3>${myChips("learn")}</div>
+  <div class="meta" style="margin-top:10px">改动会实时更新匹配结果 · <button data-go="me" style="text-decoration:underline;font-size:12px;color:var(--ink2)">完善资料</button></div></div></section>
+  <div class="sec"><h2>技能广场</h2><span>${items.length} 条${ui.side==="teach"?"可以学的技能":"学习需求"}</span></div>
+  <div class="search"><input id="q" placeholder="搜技能、城市或昵称，比如「吉他」「上海」" value="${esc(ui.q)}"><div class="seg"><button class="${ui.side==="teach"?"on":""}" data-act="side" data-v="teach">能教的</button><button class="${ui.side==="learn"?"on":""}" data-act="side" data-v="learn">想学的</button></div></div>
+  <div class="filters">${["全部",...Object.keys(CATS)].map(c=>`<span class="chip pick ${ui.cat===c?"on":""}" data-act="cat" data-v="${c}">${c}</span>`).join("")}</div>
+  <div class="grid">${items.map(i=>`<div class="card" data-act="user" data-id="${i.u.id}"><div style="display:flex;justify-content:space-between;align-items:center"><span class="skill">${esc(i.s)}</span>${mine.includes(i.s)?`<span class="badge acc">${ui.side==="teach"?"你想学":"你能教"}</span>`:`<span class="tag2">${catOf(i.s)}</span>`}</div>
+    <div class="meta">${esc(i.lv)}</div><div class="desc">${esc(i.d)}</div><div class="who">${av(i.u)}<div><b>${esc(i.u.name)}</b><br>${userMeta(i.u)}</div></div></div>`).join("")||`<div class="empty" style="grid-column:1/-1"><b>还没有人发布这个技能</b>把它加到「我想学的」，有人发布时第一时间通知你。</div>`}</div>`},
+
+match(){const m=matchAll();
+  if(!S.me.teach.length||!S.me.learn.length)return `<div class="sec"><h2>匹配</h2></div><div class="empty"><b>先告诉我们你的两张清单</b>至少填一个「能教的」和一个「想学的」，匹配才能开始。<br><br><button class="btn pri" data-go="me">去填写</button></div>`;
+  const row=(x,type)=>`<div class="mcard"><div><div class="who">${av(x.u)}<div><b>${esc(x.u.name)}</b> ${x.reach?"":'<span class="tag2">仅线下 · 异地</span>'}<br>${userMeta(x.u)}</div></div>
+    <div class="ex">${x.get.length?`<div><i>TA 教你</i>${chips(x.get,"learn",x.get)}</div>`:""}${x.give.length?`<div><i>你教 TA</i>${chips(x.give,"teach",x.give)}</div>`:""}</div>
+    <div class="meta">共同空闲：${x.u.times.filter(t=>S.me.times.includes(t)).join("、")||"需协商"} · ${x.u.mode==="均可"?"线上线下均可":x.u.mode}</div>
+    <div class="acts">${type==="want"?`<button class="btn pri sm" data-act="req" data-id="${x.u.id}" data-type="earn">教 TA · 赚时间币</button>`:`<button class="btn pri sm" data-act="req" data-id="${x.u.id}" data-type="${type}">${type==="mutual"?"发起交换":"用时间币约课"}</button>`}<button class="btn ghost sm" data-act="user" data-id="${x.u.id}">看主页</button><button class="btn ghost sm" data-act="chat" data-id="${x.u.id}">先聊聊</button></div></div>
+    <div class="score">${x.sc}<small>匹配度</small></div></div>`;
+  return `<div class="sec"><h2>双向匹配</h2><span>你会的正好是 TA 想学的，TA 会的正好是你想学的</span></div>
+  ${m.mutual.map(x=>row(x,"mutual")).join("")||`<div class="empty"><b>暂时没有完美互补的人</b>别急，看看下面的三角互换和时间币，一样能学到。</div>`}
+  <div class="sec"><h2>三角互换</h2><span>找不到两两互补？三个人围成一圈，每个人都教一门、学一门</span></div>
+  ${m.chains.map((c,i)=>`<div class="mcard"><div><div class="chain"><span class="node">${av(S.me)}我</span><span class="arrow">教 ${esc(c.give)}</span><span class="node">${av(c.b)}${esc(c.b.name)}</span><span class="arrow">教 ${esc(c.mid)}</span><span class="node">${av(c.c)}${esc(c.c.name)}</span><span class="arrow">教 ${esc(c.get)}</span><span class="node">${av(S.me)}我</span></div>
+    <div class="meta">你付出 ${esc(c.give)}，收获 ${esc(c.get)} · 三人都确认后开始，任一人退出自动转为时间币结算</div>
+    <div class="acts"><button class="btn pri sm" data-act="chainreq" data-i="${i}">发起三角互换</button><button class="btn ghost sm" data-act="user" data-id="${c.c.id}">看 ${esc(c.c.name)}</button><button class="btn ghost sm" data-act="user" data-id="${c.b.id}">看 ${esc(c.b.name)}</button></div></div><div class="score">${c.sc}<small>匹配度</small></div></div>`).join("")||`<div class="empty">当前清单下没有可组成的三角。多加一两个技能试试。</div>`}
+  <div class="sec"><h2>用时间币学</h2><span>TA 能教你，但你暂时没有 TA 想学的——花 1 枚时间币换 1 小时</span></div>
+  ${m.teachMe.map(x=>row(x,"coin")).join("")||`<div class="empty">暂无</div>`}
+  <div class="sec"><h2>想向你学的人</h2><span>教 1 小时赚 1 枚时间币，攒着去学任何人的课</span></div>
+  ${m.wantMe.map(x=>row(x,"want")).join("")||`<div class="empty">暂无</div>`}`},
+
+swaps(){if(!S.swaps.length)return `<div class="sec"><h2>我的交换</h2></div><div class="empty"><b>还没有进行中的交换</b>每一次交换都是一份小小的学习契约：约定节数、固定节奏、互相打卡——有人等你，才更容易坚持。<br><br><button class="btn pri" data-go="match">去看看匹配</button></div>`;
+  const label={pending:"等待对方确认",active:"进行中",done:"已完成"};
+  return `<div class="sec"><h2>我的交换</h2><span>学习契约 · 约定节数，互相打卡</span></div>`+S.swaps.slice().reverse().map(s=>{const u=uById(s.uid),u2=s.uid2&&uById(s.uid2);
+    const bar=(done,cls)=>`<div class="prog ${cls}"><b style="width:${done/s.total*100}%"></b></div>`;
+    return `<div class="mcard" style="grid-template-columns:1fr"><div>
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><div class="who">${av(u)}<div><b>${esc(u.name)}${u2?" · "+esc(u2.name):""}</b> <span class="tag2">${{mutual:"双向互换",coin:"时间币约课",earn:"授课赚币",chain:"三角互换"}[s.type]}</span><br><span class="meta">${s.total} 节 · ${esc(s.pace)} · ${esc(s.mode)}${s.trial?" · 含 15 分钟试课":""}</span></div></div><span class="status ${s.status}">${label[s.status]}</span></div>
+    <div class="two">${s.give?`<div><div class="meta">我教 ${esc(s.type==="chain"?u.name:"TA")} · <b style="color:var(--green)">${esc(s.give)}</b><span style="margin-left:auto">${s.doneGive}/${s.total}</span></div>${bar(s.doneGive,"")}${s.status==="active"&&s.doneGive<s.total?`<button class="btn ghost sm" style="margin-top:8px" data-act="tick" data-id="${s.id}" data-k="doneGive">完成一节 · 打卡</button>`:""}</div>`:""}
+    ${s.get?`<div><div class="meta">${esc(u2?u2.name:"TA")} 教我 · <b style="color:var(--accent)">${esc(s.get)}</b><span style="margin-left:auto">${s.doneGet}/${s.total}</span></div>${bar(s.doneGet,"l")}${s.status==="active"&&s.doneGet<s.total?`<button class="btn ghost sm" style="margin-top:8px" data-act="tick" data-id="${s.id}" data-k="doneGet">完成一节 · 打卡</button>`:""}</div>`:""}</div>
+    <div class="acts" style="margin-top:14px"><button class="btn ghost sm" data-act="chat" data-id="${(u2||u).id}">发消息</button>${s.status==="done"&&!s.reviewed?`<button class="btn acc sm" data-act="review" data-id="${s.id}">写评价 · 得 1 时间币</button>`:""}${s.reviewed?`<span class="meta">已评价 <span class="stars">${"★".repeat(s.reviewed)}</span></span>`:""}</div></div></div>`}).join("")},
+
+messages(){const ids=Object.keys(S.msgs).map(Number).sort((a,b)=>(S.msgs[b].at(-1)?.t||0)-(S.msgs[a].at(-1)?.t||0));
+  if(!ids.length)return `<div class="sec"><h2>消息</h2></div><div class="empty"><b>还没有对话</b>在匹配页点「先聊聊」，和对方约个 15 分钟试课。</div>`;
+  if(ui.thread==null&&innerWidth>760)ui.thread=ids[0];const u=ui.thread!=null&&uById(ui.thread);if(u&&S.unread[u.id]){delete S.unread[u.id];save();setTimeout(render)}
+  return `<div class="chat ${u?"open":""}"><div class="threads">${ids.map(id=>{const t=uById(id),last=S.msgs[id].at(-1);return `<div class="th ${id===ui.thread?"on":""}" data-act="thread" data-id="${id}">${av(t)}<div style="min-width:0"><b style="font-size:14px">${esc(t.name)}</b>${S.unread[id]?`<span class="dot">${S.unread[id]}</span>`:""}<p>${esc(last?last.text:"")}</p></div></div>`}).join("")}</div>
+  <div class="pane">${u?`<header><button class="btn ghost sm back" data-act="thread" data-id="">返回</button>${av(u)}<div><b>${esc(u.name)}</b><br>${userMeta(u)}</div></header>
+  <div class="msgs">${S.msgs[u.id].map(m=>`<div class="msg ${m.from}">${esc(m.text)}</div>`).join("")}</div>
+  <form class="send" data-form="send"><input name="t" placeholder="说点什么…" autocomplete="off"><button class="btn pri sm">发送</button></form>`:""}</div></div>`},
+
+me(){const done=S.swaps.filter(s=>s.status==="done").length,hours=S.swaps.reduce((a,s)=>a+s.doneGive+s.doneGet,0);
+  return `<div class="sec"><h2>我的</h2><span>资料越完整，匹配越准</span></div>
+  <div class="two" style="margin-top:0;align-items:start"><div class="mycard"><div class="who" style="margin-bottom:16px">${av(S.me,"lg")}<div><b style="font-size:18px">${esc(S.me.name)}</b><br><span class="meta">${esc(S.me.city)} · 完成 ${done} 次交换 · 累计 ${hours} 节</span></div></div>
+    <form data-form="profile"><div class="fld" style="margin-top:0"><label>昵称</label><input type="text" name="name" value="${esc(S.me.name)}" maxlength="12"></div>
+    <div class="fld"><label>城市</label><select name="city">${["上海","北京","杭州","深圳","广州","成都"].map(c=>`<option ${S.me.city===c?"selected":""}>${c}</option>`).join("")}</select></div>
+    <div class="fld"><label>空闲时段</label>${TIMES.map(t=>`<span class="chip pick ${S.me.times.includes(t)?"on":""}" data-act="time" data-v="${t}">${t}</span>`).join("")}</div>
+    <div class="fld"><label>一句话介绍</label><textarea name="bio" rows="2" placeholder="说说你的故事，让对方更愿意和你换">${esc(S.me.bio)}</textarea></div>
+    <button class="btn pri sm" style="margin-top:14px">保存资料</button></form></div>
+  <div><div class="mycard"><div class="row"><h3>我能教的</h3>${myChips("teach")}</div><div class="row" style="margin-bottom:0"><h3>我想学的</h3>${myChips("learn")}</div></div>
+    <div class="mycard" style="margin-top:14px"><h3>时间币账本</h3><div style="font-size:30px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums">${S.coins}<span style="font-size:13px;font-weight:400;color:var(--ink3)"> 枚 · 1 枚 = 1 小时</span></div>
+    <div class="ledger" style="margin-top:8px">${S.ledger.slice().reverse().slice(0,8).map(l=>`<div><span>${esc(l.t)}</span><b style="color:${l.n>0?"var(--green)":"var(--accent)"}">${l.n>0?"+":""}${l.n}</b></div>`).join("")}</div></div></div></div>`},
+
+about(){return `<div class="sec"><h2>设计思路</h2><span>这个雏形想解决什么，为什么这么设计</span></div>
+  <div class="flow"><div><em>STEP 1</em><b>两张清单</b>发布「我能教的」「我想学的」，30 秒完成</div><div><em>STEP 2</em><b>智能匹配</b>双向互补优先，三角互换与时间币兜底</div><div><em>STEP 3</em><b>试课与契约</b>15 分钟试课，约定节数与节奏</div><div><em>STEP 4</em><b>打卡履约</b>双方各自打卡，进度对等可见</div><div><em>STEP 5</em><b>互评沉淀</b>评价进入信用档案，反哺匹配排序</div></div>
+  <div class="sec"><h2 style="font-size:17px">痛点 → 方案</h2></div>
+  <div class="doc">
+  <div class="card"><span class="pain">痛点一 · 报班贵</span><h4>以技易技，零现金门槛</h4><p>核心交易单位是「一小时」而不是「一块钱」。你教一小时 Python，换对方教你一小时吉他。平台不碰钱，降低决策成本，也避开早期的支付与资质问题。</p></div>
+  <div class="card"><span class="pain">痛点二 · 需求双重巧合</span><h4>三角互换 + 时间币</h4><p>物物交换最大的问题是「我要的人恰好不要我的」。所以匹配做了三层：双向互补 → A 教 B、B 教 C、C 教 A 的三角闭环 → 时间币（教 1 小时赚 1 枚，花在任何人身上）。三层叠加后，几乎每个用户都有课可上。</p></div>
+  <div class="card"><span class="pain">痛点三 · 自学难坚持</span><h4>学习契约与对等打卡</h4><p>交换不是一次性的，而是一份约定好节数和节奏的小契约。两条进度条并排放：你欠对方的课、对方欠你的课一目了然。「有人在等我」比任何打卡 App 的提醒都有效。</p></div>
+  <div class="card"><span class="pain">痛点四 · 陌生人不敢约</span><h4>15 分钟试课 + 信用档案</h4><p>首次交换默认附带一节 15 分钟试课，不合适可无成本退出。实名标识、完成次数、评分和文字评价组成信用档案，并直接参与匹配度计算。</p></div>
+  <div class="card"><span class="pain">痛点五 · 会的东西无处分享</span><h4>「想向你学的人」反向列表</h4><p>除了我想学什么，首页同样突出「谁想学我会的」。被需要本身就是动力，也是时间币的来源——先教后学，形成供给侧冷启动。</p></div>
+  <div class="card"><span class="pain">匹配度怎么算</span><h4>可解释的打分</h4><ul><li>双向互补为基础分，互补技能越多越高</li><li>城市与授课方式可达（线上 / 同城线下）</li><li>空闲时段重合数</li><li>对方历史评分</li></ul><p style="margin-top:6px">每张匹配卡都写明「TA 教你什么、你教 TA 什么、何时有空」，不做黑箱推荐。</p></div>
+  </div>
+  <div class="sec"><h2 style="font-size:17px">功能结构</h2></div>
+  <div class="doc">
+  <div class="card"><h4>发现</h4><p>技能广场，按品类与关键词筛选；「能教的 / 想学的」双视角切换；与我相关的条目置顶标记。</p></div>
+  <div class="card"><h4>匹配</h4><p>双向匹配、三角互换、时间币约课、想向我学的人，四个分区对应四种成交路径。</p></div>
+  <div class="card"><h4>我的交换</h4><p>契约状态流转：待确认 → 进行中 → 已完成 → 互评。逐节打卡，时间币自动结算。</p></div>
+  <div class="card"><h4>消息</h4><p>发起交换前可先聊；系统消息同步契约状态变更。</p></div>
+  <div class="card"><h4>我的</h4><p>两张清单、空闲时段、城市、时间币账本。任何修改实时影响匹配结果。</p></div>
+  <div class="card"><h4>下一步迭代</h4><ul><li>小组课：一人教多人，时间币按人头结算</li><li>技能认证：作品 / 证书上传与社区背书</li><li>爽约保护：契约押币，缺席自动赔付</li><li>学习路径：把多次交换串成一条成长线</li></ul></div>
+  </div>`}
+};
+
+/* ---------- actions ---------- */
+function toast(t){document.querySelectorAll(".toast").forEach(e=>e.remove());const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2400)}
+function modal(html){$("#modal").innerHTML=html?`<div class="mask" data-act="closemask"><div class="modal"><button class="close" data-act="close">×</button>${html}</div></div>`:""}
+function pushMsg(uid,from,text){(S.msgs[uid]=S.msgs[uid]||[]).push({from,text,t:Date.now()});if(from==="them"&&!(route==="messages"&&ui.thread===uid))S.unread[uid]=(S.unread[uid]||0)+1;save()}
+function coin(n,t){S.coins+=n;S.ledger.push({t,n});save()}
+const REPLIES=["好呀，我这周末白天有空，你呢？","可以的，要不先来个 15 分钟试课，互相感受一下节奏？","收到，我把练习资料整理一下发你。","没问题，那就按每周一次来，谁也别鸽谁哈。","哈哈我也是零基础，到时候多担待。"];
+
+function userModal(u){const{get,give}=relate(u);const tp=get.length&&give.length?"mutual":get.length?"coin":give.length?"earn":"";
+  modal(`<div class="who" style="margin-bottom:12px">${av(u,"lg")}<div><h3>${esc(u.name)}</h3>${userMeta(u)}</div></div>
+  <p style="color:var(--ink2);font-size:14px">${esc(u.bio)}</p>
+  <div class="meta" style="margin-top:8px">空闲：${u.times.join("、")} · ${u.mode==="均可"?"线上线下均可":u.mode}</div>
+  <div class="fld"><label>TA 能教</label>${u.teach.map(t=>`<div style="margin-bottom:8px"><span class="chip teach ${get.includes(t.s)?"hit":""}">${esc(t.s)}</span><span class="meta" style="display:inline">${esc(t.lv)}</span><div style="font-size:13px;color:var(--ink2)">${esc(t.d)}</div></div>`).join("")}</div>
+  <div class="fld"><label>TA 想学</label>${chips(u.learn,"learn",give)}</div>
+  ${tp?`<div class="note">${tp==="mutual"?`你们刚好互补：TA 教你 ${get.join("、")}，你教 TA ${give.join("、")}。`:tp==="coin"?`TA 能教你 ${get.join("、")}，可以用时间币约课。`:`TA 想学你会的 ${give.join("、")}，教 TA 可以赚时间币。`}</div>`:""}
+  <div class="fld"><label>收到的评价</label>${[0,1].map(i=>`<div class="review"><span class="stars">★★★★★</span> <small>来自第 ${u.swaps-i} 次交换</small><br>${REVIEWS[(u.id+i)%REVIEWS.length]}</div>`).join("")}</div>
+  <div class="acts" style="margin-top:18px">${tp?`<button class="btn pri" data-act="req" data-id="${u.id}" data-type="${tp}">${{mutual:"发起交换",coin:"用时间币约课",earn:"教 TA · 赚时间币"}[tp]}</button>`:""}<button class="btn ghost" data-act="chat" data-id="${u.id}">先聊聊</button></div>`)}
+
+function reqModal(u,type){const{get,give}=relate(u);const opt=a=>a.map(s=>`<option>${esc(s)}</option>`).join("");
+  modal(`<h3>${{mutual:"发起交换",coin:"用时间币约课",earn:"接受授课"}[type]} · ${esc(u.name)}</h3><p class="meta" style="margin-top:4px">这是一份小小的学习契约，双方确认后生效</p>
+  <form data-form="req" data-id="${u.id}" data-type="${type}">
+  ${type!=="coin"?`<div class="fld"><label>我教 TA</label><select name="give">${opt(give.length?give:S.me.teach)}</select></div>`:""}
+  ${type!=="earn"?`<div class="fld"><label>TA 教我</label><select name="get">${opt(get.length?get:u.teach.map(t=>t.s))}</select></div>`:""}
+  <div class="two" style="margin-top:0"><div class="fld"><label>${type==="mutual"?"每人各教":"共"}几节（每节 1 小时）</label><select name="total"><option>2</option><option selected>4</option><option>8</option></select></div>
+  <div class="fld"><label>节奏</label><select name="pace"><option>每周 1 次</option><option>每周 2 次</option><option>两周 1 次</option></select></div></div>
+  <div class="fld"><label>方式</label><select name="mode">${u.mode!=="线下"?"<option>线上视频</option>":""}${u.mode!=="线上"&&u.city===S.me.city?`<option>线下 · ${u.city}</option>`:""}</select></div>
+  <div class="fld"><label><input type="checkbox" name="trial" checked> 先来一节 15 分钟试课，不合适可无责退出</label></div>
+  <div class="fld"><label>打个招呼</label><textarea name="msg" rows="2">你好 ${esc(u.name)}，看到我们技能挺互补的，想和你换着学～</textarea></div>
+  ${type==="coin"?`<div class="note">每完成一节扣 1 枚时间币，当前余额 ${S.coins} 枚。不够？去「想向你学的人」里教一节就有了。</div>`:""}${type==="earn"?`<div class="note">每教完一节获得 1 枚时间币。</div>`:""}
+  <button class="btn pri" style="margin-top:18px;width:100%">发送交换邀请</button></form>`)}
+
+function createSwap(o,hello){const s={id:Date.now(),total:4,doneGive:0,doneGet:0,status:"pending",created:Date.now(),...o};S.swaps.push(s);const to=o.uid2||o.uid;
+  pushMsg(to,"me",hello);if(o.uid2)pushMsg(o.uid,"me",hello);save();setTimeout(()=>accept(s.id),2600);return s}
+function accept(id){const s=S.swaps.find(x=>x.id===id);if(!s||s.status!=="pending")return;s.status="active";const u=uById(s.uid2||s.uid);
+  pushMsg(u.id,"them",s.type==="chain"?"三角互换我确认啦，三个人都到齐了，这周就可以开始！":"邀请我确认啦！"+REPLIES[1]);save();render();toast(`${u.name} 已确认，交换开始`)}
+
+document.addEventListener("click",e=>{const go=e.target.closest("[data-go]");if(go){modal("");location.hash=go.dataset.go;scrollTo(0,0);return}
+  const el=e.target.closest("[data-act]");if(!el)return;const a=el.dataset.act,d=el.dataset;
+  if(a==="closemask"){if(e.target===el)modal("");return}
+  e.stopPropagation();
+  if(a==="close")modal("");
+  else if(a==="cat"){ui.cat=d.v;render()}
+  else if(a==="side"){ui.side=d.v;render()}
+  else if(a==="user")userModal(uById(+d.id));
+  else if(a==="rm"){S.me[d.k]=S.me[d.k].filter(s=>s!==d.s);save();render()}
+  else if(a==="time"){const t=S.me.times;S.me.times=t.includes(d.v)?t.filter(x=>x!==d.v):[...t,d.v];save();render()}
+  else if(a==="addskill"){const k=d.k;modal(`<h3>${k==="teach"?"发布我能教的":"添加我想学的"}</h3><p class="meta" style="margin-top:4px">点选或自己输入</p>
+    ${Object.entries(CATS).map(([c,ss])=>`<div class="fld"><label>${c}</label>${ss.map(s=>`<span class="chip pick ${S.me[k].includes(s)?"on":""}" data-act="toggleskill" data-k="${k}" data-s="${s}">${s}</span>`).join("")}</div>`).join("")}
+    <form data-form="custom" data-k="${k}" class="fld"><label>没有找到？自己写</label><div style="display:flex;gap:8px"><input type="text" name="s" maxlength="12" placeholder="例如：手冲咖啡"><button class="btn pri sm">添加</button></div></form>
+    <button class="btn pri" style="margin-top:18px;width:100%" data-act="close">完成</button>`)}
+  else if(a==="toggleskill"){const arr=S.me[d.k];S.me[d.k]=arr.includes(d.s)?arr.filter(s=>s!==d.s):[...arr,d.s];save();el.classList.toggle("on");render()}
+  else if(a==="req")reqModal(uById(+d.id),d.type);
+  else if(a==="chainreq"){const c=matchAll().chains[+d.i];if(!c)return;createSwap({uid:c.b.id,uid2:c.c.id,type:"chain",give:c.give,get:c.get,pace:"每周 1 次",mode:"线上视频",trial:true},`你好，我想发起一个三角互换：我教${c.b.name}${c.give}，${c.b.name}教${c.c.name}${c.mid}，${c.c.name}教我${c.get}。`);location.hash="swaps";render();toast("已向两位发出邀请")}
+  else if(a==="chat"){const id=+d.id;S.msgs[id]=S.msgs[id]||[];save();ui.thread=id;modal("");location.hash="messages";render()}
+  else if(a==="thread"){ui.thread=d.id===""?null:+d.id;if(ui.thread==null&&innerWidth>760)return;render()}
+  else if(a==="tick"){const s=S.swaps.find(x=>x.id===+d.id);if(!s)return;
+    if(d.k==="doneGet"&&s.type==="coin"){if(S.coins<1)return toast("时间币不足，先去教一节吧");coin(-1,`向 ${uById(s.uid).name} 学 ${s.get}`)}
+    if(d.k==="doneGive"&&s.type==="earn")coin(1,`教 ${uById(s.uid).name} ${s.give}`);
+    s[d.k]++;const need=(s.give?s.total-s.doneGive:0)+(s.get?s.total-s.doneGet:0);if(!need){s.status="done";toast("全部完成，去写个评价吧")}else toast("已打卡，对方会收到确认提醒");save();render()}
+  else if(a==="review"){modal(`<h3>评价这次交换</h3><form data-form="review" data-id="${d.id}"><div class="fld starpick" data-v="5">${[1,2,3,4,5].map(i=>`<button type="button" class="on" data-act="star" data-v="${i}">★</button>`).join("")}</div>
+    <div class="fld"><label>说点什么</label><textarea name="t" rows="3" placeholder="对方教得怎么样？守时吗？"></textarea></div><button class="btn pri" style="margin-top:16px;width:100%">提交 · 获得 1 时间币</button></form>`)}
+  else if(a==="star"){const p=el.parentElement;p.dataset.v=d.v;[...p.children].forEach((b,i)=>b.classList.toggle("on",i<+d.v))}
+  else if(a==="reset"){if(confirm("重置后会清空你在本机的演示操作，确定吗？")){localStorage.removeItem(KEY);S=fresh();ui.thread=null;location.hash="discover";render()}}
+});
+document.addEventListener("submit",e=>{e.preventDefault();const f=e.target,k=f.dataset.form,fd=new FormData(f);
+  if(k==="send"){const t=(fd.get("t")||"").trim();if(!t)return;const id=ui.thread;pushMsg(id,"me",t);render();$(".send input")?.focus();setTimeout(()=>{pushMsg(id,"them",REPLIES[Math.floor(Math.random()*REPLIES.length)]);render()},1300)}
+  else if(k==="profile"){S.me.name=(fd.get("name")||"我").trim()||"我";S.me.city=fd.get("city");S.me.bio=fd.get("bio");save();render();toast("资料已保存，匹配已更新")}
+  else if(k==="custom"){const s=(fd.get("s")||"").trim(),kk=f.dataset.k;if(s&&!S.me[kk].includes(s)){S.me[kk].push(s);save();render();toast(`已添加「${s}」`);f.reset()}}
+  else if(k==="req"){const u=uById(+f.dataset.id),type=f.dataset.type;if(!fd.get("mode"))return toast("对方仅支持异地线下，暂时无法约课");
+    createSwap({uid:u.id,type,give:type==="coin"?null:fd.get("give"),get:type==="earn"?null:fd.get("get"),total:+fd.get("total"),pace:fd.get("pace"),mode:fd.get("mode"),trial:!!fd.get("trial")},fd.get("msg")||"你好～");modal("");location.hash="swaps";render();toast("邀请已发送，等待对方确认")}
+  else if(k==="review"){const s=S.swaps.find(x=>x.id===+f.dataset.id);s.reviewed=+f.querySelector(".starpick").dataset.v;coin(1,"完成互评奖励");modal("");render();toast("感谢评价，+1 时间币")}
+});
+document.addEventListener("input",e=>{if(e.target.id==="q"){ui.q=e.target.value;const pos=e.target.selectionStart;render();const i=$("#q");i.focus();i.setSelectionRange(pos,pos)}});
+addEventListener("hashchange",()=>{route=location.hash.slice(1)||"discover";render()});
+addEventListener("keydown",e=>{if(e.key==="Escape")modal("")});
+S.swaps.filter(s=>s.status==="pending").forEach(s=>setTimeout(()=>accept(s.id),1500));
+render();
+</script>
+</body>
+</html>
