@@ -152,6 +152,21 @@ svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke
 .ledger div{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13.5px;color:var(--ink2)}
 .ledger b{font:600 13px var(--mono);color:var(--ink)}.ledger b.neg{color:var(--mag)}
 
+.chip.add{padding:6px 13px;font-size:15px}
+.skq{position:sticky;top:-8px;background:var(--bg);padding:8px 0 10px;z-index:2}
+.skq input{width:100%;background:var(--bg2);border:0;outline:0;border-radius:14px;padding:12px 14px;font-size:16px}
+.qty{display:flex;align-items:center;justify-content:center;gap:24px;margin:16px 0 18px}
+.qty .iconbtn{width:46px;height:46px;font-size:22px}
+.qn{min-width:120px;text-align:center}.qn b{font:800 76px/1 var(--hei);letter-spacing:-.05em;font-variant-numeric:tabular-nums}.qn span{font-size:14px;color:var(--ink3);margin-left:6px}
+.bill div{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line2);font-size:14px;color:var(--ink2)}
+.bill b{color:var(--ink);font-weight:600}.bill .tot b{font:800 22px var(--hei);letter-spacing:-.02em}
+.payway{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--bg2);margin-top:14px;font-size:14px}.payway span{margin-left:auto;color:var(--ink3);font-size:12.5px}
+.wbody{flex:1;overflow-y:auto;padding:14px 18px 30px}
+.wbal b{font:800 104px/.86 var(--hei);letter-spacing:-.06em;font-variant-numeric:tabular-nums}.wbal span{font-size:13px;color:var(--ink3);margin-left:8px}
+.wstat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.wstat div{border-radius:18px;padding:14px;background:var(--bg2)}.wstat span{display:block;font-size:12px;color:var(--ink3)}.wstat b{font:800 26px var(--hei);letter-spacing:-.03em}
+.ledger span em{display:block;font:normal 500 10.5px var(--mono);color:var(--ink3);margin-top:1px}
+.wallet{cursor:pointer}.wallet .l u{display:block;text-decoration:none;opacity:.9;margin-top:2px}
 /* pushed page, sheet */
 .page{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .38s var(--out);z-index:20;visibility:hidden}
 .page.on{transform:none;visibility:visible}
@@ -268,7 +283,7 @@ svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke
 </div>
 
 <div class="phone" id="phone">
-  <header class="bar"><h1>换技<em>SkillSwap</em></h1><span class="sp"></span><button class="coinpill" data-act="pay"><svg class="i"><use href="#i-coin"/></svg><span id="coinTop">3</span></button></header>
+  <header class="bar"><h1>换技<em>SkillSwap</em></h1><span class="sp"></span><button class="coinpill" data-act="wallet" aria-label="时间币"><svg class="i"><use href="#i-coin"/></svg><span id="coinTop">3</span></button></header>
   <div class="views">
     <div class="view" id="v-deck"><div class="stack" id="stack"></div>
       <div class="actions"><button class="act s" data-act="undo" aria-label="反悔"><svg class="i"><use href="#i-undo"/></svg></button><button class="act nope" data-act="swipe" data-d="pass" aria-label="跳过"><svg class="i"><use href="#i-x"/></svg></button><button class="act s sup" data-act="swipe" data-d="super" aria-label="超级想学"><svg class="i"><use href="#i-star"/></svg></button><button class="act like" data-act="swipe" data-d="like" aria-label="想换"><svg class="i"><use href="#i-loop"/></svg></button></div></div>
@@ -305,6 +320,8 @@ svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.500 12S6 5.500 12 5.500 21.500 12 21.500 12 18 18.500 12 18.500 2.500 12 2.500 12z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.600-5.900L4 8.500M4 4v4.500h4.500"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.200 7-11.500a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
 </defs></svg>
 
 <script>
@@ -444,7 +461,7 @@ function vChat(){const el=$("#v-chat"),lm=likedMe(),ids=Object.keys(S.msgs).map(
   ${lm.length?`<button class="likes" data-act="likes" style="width:100%;text-align:left"><span class="avs">${lm.slice(0,3).map(u=>av(u,S.plus?"":"blur")).join("")}</span><span class="t"><b>${lm.length} 个人右滑了你</b>${S.plus?"点开看看":"开通换技+ 查看"}</span>${ic(S.plus?"go":"lock")}</button>`:""}
   ${recent.length?`<div class="sub">新的环</div><div class="newm">${recent.map(m=>{const u=uById(m.uid2||m.uid);return `<button data-act="chat" data-id="${u.id}">${av(u)}${esc(u.name)}</button>`}).join("")}</div>`:""}
   <div class="sub">聊天</div>${ids.map(id=>{const u=uById(id),last=S.msgs[id].slice(-1)[0];return `<button class="rowi" data-act="chat" data-id="${id}" style="width:100%;text-align:left">${av(u)}<span class="t"><b>${esc(u.name)}</b><p>${esc(last.text)}</p></span>${S.unread[id]?`<span class="un"></span>`:""}</button>`}).join("")||`<div class="empty" style="padding-top:10px">互相右滑之后，就能在这里聊。</div>`}`}
-function openChat(id){ui.thread=id;S.msgs[id]=S.msgs[id]||[];delete S.unread[id];save();const u=uById(id),p=$("#page");
+function openChat(id){ui.page="chat";ui.thread=id;S.msgs[id]=S.msgs[id]||[];delete S.unread[id];save();const u=uById(id),p=$("#page");
   p.innerHTML=`<header class="bar"><button class="iconbtn" data-act="back" aria-label="返回">${ic("back")}</button>${av(u,"sm")}<b>${esc(u.name)}</b><span class="sp"></span><button class="btn sm" data-act="reveal" data-id="${id}">${ic("eye")}公开</button></header><div class="msgs" id="msgs"></div><form class="send" data-form="send"><input name="t" placeholder="说点什么" autocomplete="off" enterkeyhint="send"><button class="btn pri sm">发送</button></form>`;
   p.classList.add("on");drawMsgs();vTop();tip("chat")}
 function drawMsgs(){const m=$("#msgs");if(!m||ui.thread==null)return;m.innerHTML=(S.msgs[ui.thread]||[]).map(x=>`<div class="msg ${x.from}">${esc(x.text)}</div>`).join("");m.scrollTop=m.scrollHeight}
@@ -453,29 +470,48 @@ function revealSheet(id){const u=uById(id),info=INFO(u),r=S.reveal[id]||{};
   sheet(`<h2>想看 ${esc(u.name)} 的</h2><p class="lead">先问一声，对方同意就免费。不想等，用时间币直接看。</p>${Object.entries(info).map(([k,x])=>r[k]===true?`<div class="lock open">${ic("open")}<div class="t"><b>${x.n}</b><p>${esc(x.v)}</p></div></div>`:`<div class="lock">${ic("lock")}<div class="t"><b>${x.n}</b><p class="blurred">${esc(x.v)}</p></div>${r[k]==="asked"?`<span style="font-size:12px;color:var(--ink3)">已问</span>`:`<button class="btn sm" style="background:var(--card)" data-act="ask" data-id="${id}" data-k="${k}">问一声</button>`}<button class="btn sm pri" data-act="unlock" data-id="${id}" data-k="${k}">${x.cost} 币</button></div>`).join("")}<p class="fine">立约生效后，联系方式会自动互相公开。</p>`)}
 
 /* ================= me / pay ================= */
-const myChips=k=>S.me[k].map(s=>`<span class="chip ${k==="teach"?"hit2":"hit"}">${esc(s)}<button class="x" data-act="rm" data-k="${k}" data-s="${esc(s)}" aria-label="移除">×</button></span>`).join("")+`<button class="chip add" data-act="addskill" data-k="${k}">+ 添加</button>`;
+const myChips=k=>S.me[k].map(s=>`<span class="chip ${k==="teach"?"hit2":"hit"}">${esc(s)}<button class="x" data-act="rm" data-k="${k}" data-s="${esc(s)}" aria-label="移除">×</button></span>`).join("")+`<button class="chip add" data-act="addskill" data-k="${k}" aria-label="添加">${ic("plus")}</button>`;
 function vMe(){const done=S.swaps.filter(s=>s.status==="done").length;
   $("#v-me").innerHTML=`<div class="mehead">${av(S.me,"lg")}<div style="flex:1;min-width:0"><input id="myname" value="${esc(S.me.name)}" maxlength="10" aria-label="昵称"><p>${esc(S.me.city)} · 换过 ${done} 次</p></div></div>
   <div class="sub">我会</div><div class="chips">${myChips("teach")}</div><div class="sub">想学</div><div class="chips">${myChips("learn")}</div>
-  <div class="wallet"><div class="n">${S.coins}</div><div class="l">时间币<br>1 枚 = 1 小时</div><button class="btn sm" data-act="pay">充值</button></div>
-  <button class="plus" data-act="pay" style="width:100%;text-align:left"><div style="flex:1"><b>换技+</b><p>${S.plus?"已开通 · 看谁右滑了你 · 无限反悔":"看谁右滑了你 · 无限反悔 · 每天 5 次超级想学"}</p></div>${ic(S.plus?"check":"go")}</button>
-  <div class="sub">账本</div><div class="ledger">${S.ledger.slice().reverse().slice(0,6).map(l=>`<div><span>${esc(l.t)}</span><b class="${l.n<0?"neg":""}">${l.n>0?"+":"−"}${Math.abs(l.n)}</b></div>`).join("")}</div>
+  <div class="wallet" data-act="wallet"><div class="n">${S.coins}</div><div class="l">时间币<u>余额与明细 ›</u></div><button class="btn sm" data-act="pay">充值</button></div>
+  <button class="plus" data-act="buyplus" style="width:100%;text-align:left"><div style="flex:1"><b>换技+</b><p>${S.plus?"已开通 · 看谁右滑了你 · 无限反悔":"看谁右滑了你 · 无限反悔 · 每天 5 次超级想学"}</p></div>${ic(S.plus?"check":"go")}</button>
   <div class="sub">设置</div><div class="setrow">${ic(S.theme==="dark"?"moon":"sun")}外观<div class="seg"><button class="${S.theme==="light"?"on":""}" data-act="theme" data-v="light">${ic("sun")}日间</button><button class="${S.theme==="dark"?"on":""}" data-act="theme" data-v="dark">${ic("moon")}夜间</button></div></div>
   <button class="setrow" data-act="retip">${ic("eye")}再看一遍新手提示</button><button class="setrow" data-act="reset">${ic("reset")}重置演示数据<span>示例用户为模拟</span></button>`}
-function paySheet(why){sheet(`<h2>${why?esc(why):"时间币"}</h2><p class="lead">聊天和约课不要钱。时间币用来提前解锁信息、补上缺的那段环。</p>
-  <button class="pack" data-act="buy" data-n="6"><div><b>6 枚</b><p>够解锁三次联系方式</p></div><span>¥6</span></button>
-  <button class="pack" data-act="buy" data-n="20"><div><b>20 枚</b><p>一门课学到底</p></div><span>¥18</span></button>
-  <button class="pack hot" data-act="plus"><div><b>换技+</b><p>看谁右滑了你 · 无限反悔 · 每天 5 次超级想学 · 每月送 5 枚</p></div><span>${S.plus?"已开通":"¥18/月"}</span></button>
-  <p class="fine">也可以不花钱：教一小时，得一枚。<br>这是演示，点了不会扣款。</p>`)}
-function coin(n,t){S.coins+=n;S.ledger.push({t,n});save()}
+function paySheet(why){sheet(`<h2>${why?esc(why):"充值"}</h2><p class="lead">聊天和约课不要钱。时间币用来提前解锁信息、补上缺的那段环。</p>
+  <button class="pack" data-act="buycoin"><div><b>时间币</b><p>¥1 / 枚 · 满 20 枚九折</p></div><span>选数量</span>${ic("go")}</button>
+  <button class="pack hot" data-act="buyplus"><div><b>换技+</b><p>看谁右滑了你 · 无限反悔 · 每天 5 次超级想学 · 每月送 5 枚</p></div><span>${S.plus?"已开通":"¥18 / 月"}</span>${S.plus?"":ic("go")}</button>
+  <p class="fine">也可以不花钱：教一小时，得一枚。</p>`)}
+const price=n=>n>=20?Math.round(n*.9):n;
+function confirmCoin(n){ui.qty=n;sheet(`<h2>买时间币</h2>
+  <div class="qty"><button class="iconbtn" data-act="qty" data-v="-1" aria-label="减少">${ic("minus")}</button><div class="qn"><b id="qn"></b><span>枚</span></div><button class="iconbtn" data-act="qty" data-v="1" aria-label="增加">${ic("plus")}</button></div>
+  <div class="seg" style="margin:0 0 16px;width:100%">${[6,20,50].map(v=>`<button data-act="qtyset" data-v="${v}" style="flex:1;justify-content:center">${v} 枚</button>`).join("")}</div>
+  <div class="bill"><div><span>单价</span><b>¥1 / 枚</b></div><div><span>优惠</span><b id="qdisc"></b></div><div class="tot"><span>合计</span><b id="qtot"></b></div><div><span>到账后余额</span><b id="qbal"></b></div></div>
+  <div class="payway">微信支付<span>演示环境，不会扣款</span></div>
+  <div style="display:flex;gap:10px;margin-top:16px"><button class="btn" data-act="pay">返回</button><button class="btn pri full" data-act="paycoin">确认支付</button></div>`);drawQty()}
+function drawQty(){const n=ui.qty;$("#qn").textContent=n;$("#qtot").textContent="¥"+price(n);$("#qdisc").textContent=n>=20?"九折 −¥"+(n-price(n)):"再加 "+(20-n)+" 枚享九折";$("#qbal").textContent=(S.coins+n)+" 枚";$$("#sheet [data-act=qtyset]").forEach(b=>b.classList.toggle("on",+b.dataset.v===n))}
+const PLUS={1:18,3:48,12:168};
+function confirmPlus(){ui.months=1;sheet(`<h2>开通换技+</h2><p class="lead">看谁右滑了你 · 无限反悔 · 每天 5 次超级想学 · 每月送 5 枚时间币</p>
+  <div class="seg" style="margin:0 0 16px;width:100%">${[1,3,12].map(v=>`<button class="${v===1?"on":""}" data-act="months" data-v="${v}" style="flex:1;justify-content:center">${v} 个月</button>`).join("")}</div>
+  <div class="bill"><div class="tot"><span>合计</span><b id="ptot">¥18</b></div><div><span>到期后</span><b>不自动续费</b></div></div>
+  <div class="payway">微信支付<span>演示环境，不会扣款</span></div>
+  <div style="display:flex;gap:10px;margin-top:16px"><button class="btn" data-act="pay">返回</button><button class="btn pri full" data-act="payplus">确认开通</button></div>`)}
+const fmt=t=>{const d=new Date(t);return `${d.getMonth()+1}月${d.getDate()}日 ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`};
+function openWallet(){ui.thread=null;ui.page="wallet";const p=$("#page"),earn=S.ledger.filter(l=>l.n>0).reduce((a,l)=>a+l.n,0),spend=-S.ledger.filter(l=>l.n<0).reduce((a,l)=>a+l.n,0);
+  p.innerHTML=`<header class="bar"><button class="iconbtn" data-act="back" aria-label="返回">${ic("back")}</button><b>时间币</b><span class="sp"></span><button class="btn sm pri" data-act="pay">充值</button></header>
+  <div class="wbody"><div class="wbal"><b>${S.coins}</b><span>枚 · 1 枚 = 1 小时</span></div><div class="wstat"><div><span>累计得到</span><b>+${earn}</b></div><div><span>累计花掉</span><b>−${spend}</b></div></div><div class="sub">明细</div><div class="ledger" id="ledger"></div></div>`;
+  p.classList.add("on");hideTip();drawLedger()}
+function drawLedger(){const el=$("#ledger");if(!el)return;const all=S.ledger.slice().reverse(),n=ui.ledgerN||12;
+  el.innerHTML=all.slice(0,n).map(l=>`<div><span>${esc(l.t)}<em>${l.at?fmt(l.at):""}</em></span><b class="${l.n<0?"neg":""}">${l.n>0?"+":"−"}${Math.abs(l.n)}</b></div>`).join("")+(all.length>n?`<button class="btn sm full" style="margin-top:14px" data-act="moreledger">更早的 ${all.length-n} 条</button>`:"")}
+function coin(n,t){S.coins+=n;S.ledger.push({t,n,at:Date.now()});save()}
 
 /* ================= chrome ================= */
 const TABS=[["deck","发现","cards"],["pact","约课","pact"],["chat","消息","chat"],["me","我","me"]];
 const VIEW={deck:vDeck,pact:vPact,chat:vChat,me:vMe};
 function vTop(){$("#coinTop").textContent=S.coins;const n=Object.values(S.unread).reduce((a,b)=>a+b,0);
   $("#tabbar").innerHTML=TABS.map(([k,l,i])=>`<button class="${ui.tab===k?"on":""}" data-act="tab" data-v="${k}">${ic(i)}${l}${k==="chat"&&n?`<span class="dot">${n}</span>`:""}</button>`).join("")}
-function setTab(k){ui.tab=k;$$(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+k));$("#page").classList.remove("on");ui.thread=null;hideTip();VIEW[k]();vTop()}
-function renderAll(){vTop();if(ui.tab!=="deck")VIEW[ui.tab]();drawMsgs()}
+function setTab(k){ui.tab=k;ui.page=null;$$(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+k));$("#page").classList.remove("on");ui.thread=null;hideTip();VIEW[k]();vTop()}
+function renderAll(){vTop();if(ui.tab!=="deck")VIEW[ui.tab]();if(ui.page==="wallet")openWallet();drawMsgs()}
 function sheet(html){$("#sheet").innerHTML=`<div class="grab"></div><div class="body">${html}</div>`;requestAnimationFrame(()=>{$("#sheet").classList.add("on");$("#scrim").classList.add("on")})}
 function closeSheet(){$("#sheet").classList.remove("on");$("#scrim").classList.remove("on")}
 function toast(t){$$(".toast").forEach(e=>e.remove());const d=document.createElement("div");d.className="toast";d.textContent=t;$("#phone").appendChild(d);setTimeout(()=>d.remove(),2200)}
@@ -514,7 +550,7 @@ document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if
   else if(a==="star"){ui.stars=+d.v;$$("#stars button").forEach((b,i)=>b.style.opacity=i<ui.stars?1:.25)}
   else if(a==="sendreview"){const s=S.swaps.find(x=>x.id===+d.id);if(!s)return;s.reviewed=ui.stars;coin(1,"完成互评");closeSheet();renderAll();toast("+1 时间币")}
   else if(a==="chat"){$("#match").classList.remove("on");closeSheet();if(ui.tab!=="chat")setTab("chat");openChat(+d.id)}
-  else if(a==="back"){$("#page").classList.remove("on");ui.thread=null;hideTip();vChat();vTop()}
+  else if(a==="back"){$("#page").classList.remove("on");ui.thread=null;ui.page=null;hideTip();if(ui.tab!=="deck")VIEW[ui.tab]();vTop()}
   else if(a==="reveal"){S.tips.chat=1;save();hideTip();revealSheet(+d.id)}
   else if(a==="ask"){const id=+d.id,k=d.k,u=uById(id),x=INFO(u)[k];(S.reveal[id]=S.reveal[id]||{})[k]="asked";pushMsg(id,"me",`可以看看你的${x.n}吗？`);save();revealSheet(id);drawMsgs();
     setTimeout(()=>{const yes=k!=="contact"&&u.ok;if(yes){S.reveal[id][k]=true;pushMsg(id,"them","可以呀，给你开了");pushMsg(id,"sys",`${u.name} 公开了${x.n}`)}else pushMsg(id,"them",k==="contact"?"微信等上完试课再加吧～":"晚点整理好发你");save();drawMsgs();vTop();if($("#sheet").classList.contains("on"))revealSheet(id)},1600)}
@@ -522,20 +558,34 @@ document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if
   else if(a==="likes"){if(!S.plus)return paySheet("谁右滑了你");sheet(`<h2>右滑了你的人</h2>${likedMe().map(u=>`<button class="rowi" data-act="peek" data-id="${u.id}" style="width:100%;text-align:left">${av(u)}<span class="t"><b>${esc(u.name)}</b><p>想学 ${relate(u).give.map(esc).join("、")}</p></span>${ic("go")}</button>`).join("")}`)}
   else if(a==="peek"){closeSheet();setTimeout(()=>openProfile(+d.id),320)}
   else if(a==="pay")paySheet();
-  else if(a==="buy"){coin(+d.n,"充值（演示）");closeSheet();renderAll();toast(`+${d.n} 时间币`)}
-  else if(a==="plus"){if(!S.plus){S.plus=true;S.supers=5;coin(5,"换技+ 月赠")}closeSheet();renderAll();toast("换技+ 已开通（演示）")}
+  else if(a==="wallet"){ui.ledgerN=12;openWallet()}
+  else if(a==="moreledger"){ui.ledgerN=(ui.ledgerN||12)+20;drawLedger()}
+  else if(a==="buycoin")confirmCoin(6);
+  else if(a==="qty"){ui.qty=Math.max(1,Math.min(99,ui.qty+ +d.v));drawQty()}
+  else if(a==="qtyset"){ui.qty=+d.v;drawQty()}
+  else if(a==="paycoin"){const n=ui.qty;coin(n,`充值 ${n} 枚`);closeSheet();renderAll();toast(`到账 ${n} 枚时间币`)}
+  else if(a==="buyplus"){if(S.plus)return toast("换技+ 已开通");confirmPlus()}
+  else if(a==="months"){ui.months=+d.v;el.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===el));$("#ptot").textContent="¥"+PLUS[ui.months]}
+  else if(a==="payplus"){S.plus=true;S.supers=5;coin(5,"换技+ 月赠");closeSheet();renderAll();toast("换技+ 已开通")}
   else if(a==="closesheet")closeSheet();
   else if(a==="tipok"){S.tips[$("#tip").dataset.k]=1;save();hideTip()}
   else if(a==="retip"){S.tips={};save();setTab("deck")}
   else if(a==="theme"){setTheme(d.v||(S.theme==="dark"?"light":"dark"));if(ui.tab==="me")vMe()}
   else if(a==="rm"){S.me[d.k]=S.me[d.k].filter(s=>s!==d.s);save();vMe()}
-  else if(a==="addskill"){const k=d.k;sheet(`<h2>${k==="teach"?"你会什么":"你想学什么"}</h2>${Object.entries(CATS).map(([c,ss])=>`<div class="fld"><label>${c}</label><div class="chips">${ss.map(s=>`<button class="chip pick ${S.me[k].includes(s)?"on":""}" data-act="toggleskill" data-k="${k}" data-s="${s}">${s}</button>`).join("")}</div></div>`).join("")}<form class="fld" data-form="custom" data-k="${k}"><label>没有就自己写</label><div style="display:flex;gap:8px"><input type="text" name="s" maxlength="10" placeholder="手冲咖啡"><button class="btn pri sm">加</button></div></form><button class="btn pri full" style="margin-top:20px" data-act="closesheet">好了</button>`)}
+  else if(a==="addskill"){const k=d.k;ui.pickK=k;sheet(`<h2>${k==="teach"?"你会什么":"你想学什么"}</h2><div class="skq"><input type="text" id="skq" placeholder="搜一下，没有就直接写" maxlength="10" autocomplete="off"></div>
+    <button class="rowi" id="skadd" data-act="customskill" style="display:none;width:100%;text-align:left"><span class="av sm" style="--c:var(--grn);font-size:17px">${ic("plus")}</span><span class="t"><b id="skaddt"></b></span></button>
+    ${Object.entries(CATS).map(([c,ss])=>`<div class="fld"><label>${c}</label><div class="chips">${ss.map(x=>`<button class="chip pick ${S.me[k].includes(x)?"on":""}" data-act="toggleskill" data-k="${k}" data-s="${x}">${x}</button>`).join("")}</div></div>`).join("")}<button class="btn pri full" style="margin-top:20px" data-act="closesheet">好了</button>`)}
+  else if(a==="customskill"){const v=($("#skq").value||"").trim(),k=ui.pickK;if(v&&!S.me[k].includes(v)){S.me[k].push(v);save();vMe();toast(`加上了「${v}」`)}closeSheet()}
   else if(a==="toggleskill"){const arr=S.me[d.k];S.me[d.k]=arr.includes(d.s)?arr.filter(s=>s!==d.s):[...arr,d.s];save();el.classList.toggle("on");vMe()}
   else if(a==="reset"){if(confirm("清空本机的演示数据？")){try{localStorage.removeItem(KEY)}catch(_){}S=fresh();setTheme("light");setTab("deck")}}
 });
 document.addEventListener("submit",e=>{e.preventDefault();const f=e.target,fd=new FormData(f);
   if(f.dataset.form==="send"){const t=(fd.get("t")||"").trim(),id=ui.thread;if(!t||id==null)return;pushMsg(id,"me",t);save();f.reset();drawMsgs();setTimeout(()=>{pushMsg(id,"them",REPLIES[Math.floor(Math.random()*REPLIES.length)]);save();drawMsgs();vTop()},1300)}
   else if(f.dataset.form==="custom"){const s=(fd.get("s")||"").trim(),k=f.dataset.k;if(s&&!S.me[k].includes(s)){S.me[k].push(s);save();vMe();f.reset();toast(`加上了「${s}」`)}}});
+document.addEventListener("input",e=>{if(e.target.id!=="skq")return;const raw=e.target.value.trim(),q=raw.toLowerCase();let exact=false;
+  $$("#sheet .chip.pick").forEach(c=>{const t=c.dataset.s.toLowerCase();c.style.display=!q||t.includes(q)?"":"none";if(t===q)exact=true});
+  $$("#sheet .fld").forEach(f=>{f.style.display=[...f.querySelectorAll(".chip.pick")].some(c=>c.style.display!=="none")?"":"none"});
+  $("#skadd").style.display=q&&!exact?"flex":"none";$("#skaddt").textContent=`添加「${raw}」`});
 document.addEventListener("change",e=>{if(e.target.id==="myname"){S.me.name=e.target.value.trim()||"我";save();vMe()}});
 addEventListener("keydown",e=>{if(e.target.matches("input,textarea")||ui.tab!=="deck"||$("#sheet").classList.contains("on")||$("#match").classList.contains("on"))return;const d={ArrowRight:"like",ArrowLeft:"pass",ArrowUp:"super"}[e.key];if(!d)return;e.preventDefault();const t=topCard();t&&t._fling&&t._fling(d,0,0)});
 
